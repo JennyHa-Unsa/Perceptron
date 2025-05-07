@@ -14,11 +14,6 @@ int funcActivationEscalon(double x) {
     }
 }
 
-int funcActivationSigmoide(double x) {
-    // Sigmoide: 1 / (1 + e^(-x))
-    return 1 / (1 + exp(-x));    
-}
-
 // Pesos y bicas pasados por referencia para modificar sus valores
 void train (
     const vector<vector<double>>& tInputs, 
@@ -41,10 +36,12 @@ void train (
         // Iterar sobre cada ejemplo de entrenamiento
         for (size_t i = 0; i < tInputs.size(); i++) {
             // Calcular la salida del perceptrón
-            // z = w1 * x1 + w2 * x2 + b
             double x1 = tInputs[i][0]; 
             double x2 = tInputs[i][1]; 
             double z = w1 * x1 + w2 * x2 + b;
+            
+            // cout << "\n- Entrada: x1 = " << x1 << ",  x2 = " << x2 << endl;
+            // cout << "- Pesos: w1 = " << w1 << ", w2 = " << w2 << ", b = " << b ;
             
             // Prdecir la salida
             int predictOutput = funcActivationEscalon(z); // salidad obtenida
