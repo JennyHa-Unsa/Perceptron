@@ -5,14 +5,18 @@
 
 using namespace std;
 
-int funcionActivation(double x) {
-    // Función de activación escalón
+int funcActivationEscalon(double x) {
     if (x >= 0) {
         return 1;
     } else // x < 0
     {
         return 0;
     }
+}
+
+int funcActivationSigmoide(double x) {
+    // Sigmoide: 1 / (1 + e^(-x))
+    return 1 / (1 + exp(-x));    
 }
 
 // Pesos y bicas pasados por referencia para modificar sus valores
@@ -26,21 +30,49 @@ void train (
     int epochs
 ) {
 
+    cout << "\n === Iniciando entrenamiento ===" << endl;
+    cout << "- Pesos iniciales: w1 = " << w1 << ", w2 = " << w2 << ", b = " << b << endl;
+    cout << "- Tasa de aprendizaje: " << alpha << endl;
+
     // Epocas de entrenamiento
     for(int epoch = 0; epoch < epochs; epoch++) {
-        // Iterar sobre cada entrada
+        int totalError = 0;
+
+        // Iterar sobre cada ejemplo de entrenamiento
         for (size_t i = 0; i < tInputs.size(); i++) {
             // Calcular la salida del perceptrón
-            double z = tInputs[i][0] * w1 + tInputs[i][1] * w2 + b;
-            int predictOutput = funcionActivation(z); // salidad obtenida
-
+            // z = w1 * x1 + w2 * x2 + b
+            double x1 = tInputs[i][0]; 
+            double x2 = tInputs[i][1]; 
+            double z = w1 * x1 + w2 * x2 + b;
+            
+            // Prdecir la salida
+            int predictOutput = funcActivationEscalon(z); // salidad obtenida
+            
+            // Calcular el error
+            double error = tOutputs[i] - predictOutput; // salida esperada - salida obtenida
+            
             // Actualizar los pesos y bias
-            double error = tOutputs[i] - predictOutput; // salida desperada - salida obtenida
-            w1 += alpha * error * tInputs[i][0];
-            w2 += alpha * error * tInputs[i][1];
-            b += alpha * error;
+            if(error != 0)
+            {
+                totalError++;
+                w1 += alpha * error * x1;
+                w2 += alpha * error * x2;
+                b += alpha * error;
+            }
+
+        }
+        // Mostrar progreso de la epoca
+        cout << "\nEpoca: " << epoch << " - Total Error: " << totalError << endl;
+        cout << "- Pesos: w1 = " << w1 << ", w2 = " << w2 << ", b = " << b << endl;
+        
+        // Criterio parada: Se alcanzó convergencia
+        if (totalError == 0) {
+            cout << "\n* Converge en la epoca: " << epoch << endl;
+            return;
         }
     }
+    cout << "\n* Entrenamiento finalizado ===" << endl;
 }
 
 
@@ -71,6 +103,19 @@ int main() {
     
     // número máx de épocas para entrenar
     int epochs = 100;
+
+    // Entrenar perceptron
+    train(tInputs, tOutputs, w1, w2, b, alpha, epochs);
+    
+    // Probar el perceptrón
+    cout << "\n== Prueba del perceptrón ===" << endl;
+    for(int i = 0; i < tInputs.size(); i++) {
+        double x1 = tInputs[i][0]; 
+        double x2 = tInputs[i][1]; 
+        double z = w1 * x1 + w2 * x2 + b;
+        int predictOutput = funcActivationEscalon(z);
+        cout << "Entrada: (" << x1 << ", " << x2 << ") \n- Salida esperada: " << tOutputs[i] << " - Salida obtenida: " << predictOutput << endl;
+    }
 
     return 0;
 }
